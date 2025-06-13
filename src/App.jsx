@@ -150,7 +150,8 @@ Or rejects immediately if any one of them fails. */
   const handleYearFilter = (y = 2020) => {
     const startYear = y;
     const endYear = y + 9;
-    const filteredMovies = moviesCopy.filter((m) => parseInt(m.Year) >= startYear && parseInt(m.Year) <= endYear);
+    const year = parseInt(m.Year?.slice(0, 4));
+    const filteredMovies = moviesCopy.filter((m) => year >= startYear && year <= endYear);
     setMovies(filteredMovies);
   }
   useEffect(() => {
