@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { CiSearch } from "react-icons/ci";
 import { useState } from "react";
-import Card from "./Components/Card";
+import Card from "./components/Card";
 import { ClipLoader } from "react-spinners";
 
 const App = () => {
@@ -11,7 +11,6 @@ const App = () => {
   const [moviesCopy, setMoviesCopy] = useState([]);
   const [loadedCount, setLoadedCount] = useState(0);
   const [typeOfSort, setTypeOfSort] = useState("");
-  const [loaded, setLoaded] = useState(false);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterValue, setFilterValue] = useState("");
 
@@ -19,11 +18,13 @@ const App = () => {
   //    https://www.omdbapi.com/?apikey=97aed2e3&i=
   const apiKey = "97aed2e3";
   const searchUrl = `https://www.omdbapi.com/?apikey=${apiKey}&s=${input}`;
+  useEffect(() => {
+    document.title = "Movie Search App";
+  }, []);
 
   useEffect(() => {
     if (loadedCount == movies.length && movies.length > 0) {
       setIsLoading(false);
-      setLoaded(true);
     }
     // console.log("Some values changed");
     setFilterCategory("");
@@ -60,7 +61,7 @@ const App = () => {
         const sorted = [...dataArray].sort(
           (a, b) => parseInt(b.imdbID.slice(2)) - parseInt(a.imdbID.slice(2))
         );
-        console.log(sorted);
+        // console.log(sorted);
         setMovies(sorted);
         setMoviesCopy(sorted);
         setIsLoading(false);
@@ -135,7 +136,6 @@ Or rejects immediately if any one of them fails. */
   };
 
   const handleGenreFilter = (g = "Comedy") => {
-    setMovies(moviesCopy);
     console.log("COPY: ", moviesCopy);
     const filteredMovies = moviesCopy.filter((m) => m.Genre.includes(g));
     console.log(filteredMovies);
@@ -143,20 +143,19 @@ Or rejects immediately if any one of them fails. */
   };
 
   const handleRatingFilter = (r = 9.5) => {
-    setMovies(moviesCopy);
-    const filteredMovies = moviesCopy.filter((m) => m.imdbRating > r);
+    const filteredMovies = moviesCopy.filter((m) => parseFloat(m.imdbRating) > r);
     setMovies(filteredMovies);
   }
   
   const handleYearFilter = (y = 2020) => {
-    setMovies(moviesCopy);
     const startYear = y;
     const endYear = y + 9;
-    const filteredMovies = moviesCopy.filter((m) => m.Year <= startYear && m.Year >= endYear);
+    const filteredMovies = moviesCopy.filter((m) => parseInt(m.Year) >= startYear && parseInt(m.Year) <= endYear);
     setMovies(filteredMovies);
   }
   useEffect(() => {
     console.log("Filter by: " + filterCategory);
+    console.log("FilterValue: ", filterValue);
     switch (filterCategory) {
       case "genre":
         handleGenreFilter(filterValue);
@@ -302,26 +301,27 @@ Or rejects immediately if any one of them fails. */
                   name="genre"
                   id=""
                   className="bg-slate-900 outline-none"
+                  onChange={(e) => setFilterValue(e.target.value)}
                 >
                   <option value="" disabled selected>
                     Select Rating
                   </option>
-                  <option className="bg-slate-900" value="Comedy">
+                  <option className="bg-slate-900" value={9.5}>
                     9.5+
                   </option>
-                  <option className="bg-slate-900" value="action">
+                  <option className="bg-slate-900" value={9}>
                     9+
                   </option>
-                  <option className="bg-slate-900" value="drama">
+                  <option className="bg-slate-900" value={8.5}>
                     8.5+
                   </option>
-                  <option className="bg-slate-900" value="adventure">
+                  <option className="bg-slate-900" value={8}>
                     8+
                   </option>
-                  <option className="bg-slate-900" value="adventure">
+                  <option className="bg-slate-900" value={7.5}>
                     7.5+
                   </option>
-                  <option className="bg-slate-900" value="adventure">
+                  <option className="bg-slate-900" value={7}>
                     7+
                   </option>
                 </select>
@@ -332,6 +332,7 @@ Or rejects immediately if any one of them fails. */
                   name="genre"
                   id=""
                   className="bg-slate-900 outline-none"
+                  onChange={(e) => setFilterValue(e.target.value)}
                 >
                   <option value="" disabled selected>
                     Select Year
