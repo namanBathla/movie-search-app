@@ -10,7 +10,7 @@ const App = () => {
   const [movies, setMovies] = useState([]);
   const [moviesCopy, setMoviesCopy] = useState([]);
   const [loadedCount, setLoadedCount] = useState(0);
-  const [typeOfSort, setTypeOfSort] = useState("");
+  const [typeOfSort, setTypeOfSort] = useState("Sort By");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterValue, setFilterValue] = useState("");
 
@@ -27,19 +27,22 @@ const App = () => {
       setIsLoading(false);
     }
     // console.log("Some values changed");
-    setFilterCategory("");
+    // setFilterCategory("");
     setTypeOfSort("");
   }, [loadedCount, movies.length]);
 
   const handleSubmit = () => {
     setIsLoading(true);
+    setFilterCategory("");
+    setFilterValue("");
+    setTypeOfSort("");
     let ids = [];
     fetch(searchUrl)
       .then((res) => res.json())
       .then((data) => {
         if (data.Search) {
           ids = data.Search.map((movie) => movie.imdbID);
-          console.log(ids);
+          // console.log(ids);
 
           // Returns a single promise that resolves to
           // an array of results (in the same order as the input promises)
@@ -136,9 +139,9 @@ Or rejects immediately if any one of them fails. */
   };
 
   const handleGenreFilter = (g = "Comedy") => {
-    console.log("COPY: ", moviesCopy);
+    // console.log("COPY: ", moviesCopy);
     const filteredMovies = moviesCopy.filter((m) => m.Genre.includes(g));
-    console.log(filteredMovies);
+    // console.log(filteredMovies);
     setMovies(filteredMovies);
   };
 
@@ -147,16 +150,22 @@ Or rejects immediately if any one of them fails. */
     setMovies(filteredMovies);
   }
   
-  const handleYearFilter = (y = 2020) => {
+  const handleYearFilter = (y) => {
     const startYear = y;
     const endYear = y + 9;
-    const year = parseInt(m.Year?.slice(0, 4));
-    const filteredMovies = moviesCopy.filter((m) => year >= startYear && year <= endYear);
+    const filteredMovies = moviesCopy.filter((m) => {
+      const year = parseInt(m.Year?.slice(0, 4));
+      console.log(m.Year, " - ", year);
+      // console.log(year);
+      return (year >= startYear && year <= endYear)
+    });
+    console.log('\n');
     setMovies(filteredMovies);
   }
+
   useEffect(() => {
-    console.log("Filter by: " + filterCategory);
-    console.log("FilterValue: ", filterValue);
+    // console.log("Filter by: " + filterCategory);
+    // console.log("FilterValue: ", filterValue);
     switch (filterCategory) {
       case "genre":
         handleGenreFilter(filterValue);
@@ -172,6 +181,11 @@ Or rejects immediately if any one of them fails. */
     }
   }, [filterValue]);
 
+  const handleKeyPress = (e) => {
+    if(e.key === 'Enter') {
+      handleSubmit();
+    }
+  }
   return (
     <>
       <div className="screen w-full min-h-screen h-full flex flex-col gap-4 px-2 py-5 bg-slate-800 justify-center items-center">
@@ -183,6 +197,7 @@ Or rejects immediately if any one of them fails. */
             type="text"
             name=""
             id=""
+            onKeyDown={handleKeyPress}
             onChange={(e) => {
               setInput(e.target.value);
             }}
@@ -269,6 +284,7 @@ Or rejects immediately if any one of them fails. */
                   id=""
                   className="bg-slate-900 outline-none"
                   onChange={(e) => setFilterValue(e.target.value)}
+                  value={filterValue}
                 >
                   <option value="" disabled selected>
                     Select Genre
@@ -303,6 +319,7 @@ Or rejects immediately if any one of them fails. */
                   id=""
                   className="bg-slate-900 outline-none"
                   onChange={(e) => setFilterValue(e.target.value)}
+                  value={filterValue}
                 >
                   <option value="" disabled selected>
                     Select Rating
@@ -330,6 +347,7 @@ Or rejects immediately if any one of them fails. */
 
               {filterCategory !== "" && filterCategory === "year" && (
                 <select
+                  value={filterValue}
                   name="genre"
                   id=""
                   className="bg-slate-900 outline-none"
