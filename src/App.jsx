@@ -139,53 +139,57 @@ Or rejects immediately if any one of them fails. */
   };
 
   const handleGenreFilter = (g = "Comedy") => {
-    // console.log("COPY: ", moviesCopy);
-    const filteredMovies = moviesCopy.filter((m) => m.Genre.includes(g));
-    // console.log(filteredMovies);
-    setMovies(filteredMovies);
+    setMovies(moviesCopy.filter((m) => m.Genre.includes(g)));
   };
 
   const handleRatingFilter = (r = 9.5) => {
-    const filteredMovies = moviesCopy.filter((m) => parseFloat(m.imdbRating) > r);
-    setMovies(filteredMovies);
-  }
-  
+    setMovies(moviesCopy.filter((m) => parseFloat(m.imdbRating) > r));
+  };
+
   const handleYearFilter = (y) => {
-    const startYear = parseInt(y);
+    const startYear = y
     const endYear = startYear + 9;
     const filteredMovies = moviesCopy.filter((m) => {
       const year = parseInt(m.Year?.slice(0, 4));
       console.log(m.Year, " - ", year);
       // console.log(year);
-      return (year >= startYear && year <= endYear)
+      return year >= startYear && year <= endYear;
     });
-    console.log('\n');
+    console.log("\n");
     setMovies(filteredMovies);
-  }
+  };
 
-  useEffect(() => {
-    // console.log("Filter by: " + filterCategory);
-    // console.log("FilterValue: ", filterValue);
-    switch (filterCategory) {
+  const handleFilterChange = (category, value) => {
+    setFilterCategory(category);
+    setFilterValue(value);
+
+    const val = typeof value === "string" ? parseFloat(value) : value;
+
+    switch (category) {
       case "genre":
-        handleGenreFilter(filterValue);
+        handleGenreFilter(value);
         break;
+
       case "rating":
-        handleRatingFilter(filterValue);
+        handleRatingFilter(val);
         break;
-      case "year":
-        handleYearFilter(filterValue);
+
+      case "year": {
+        handleYearFilter(val);
         break;
+      }
+
       default:
+        setMovies([...moviesCopy]);
         break;
     }
-  }, [filterValue]);
+  };
 
   const handleKeyPress = (e) => {
-    if(e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSubmit();
     }
-  }
+  };
   return (
     <>
       <div className="screen w-full min-h-screen h-full flex flex-col gap-4 px-2 py-5 bg-slate-800 justify-center items-center">
@@ -283,7 +287,9 @@ Or rejects immediately if any one of them fails. */
                   name="genre"
                   id=""
                   className="bg-slate-900 outline-none"
-                  onChange={(e) => setFilterValue(e.target.value)}
+                  onChange={(e) => {
+                    handleFilterChange("genre", e.target.value);
+                  }}
                   value={filterValue}
                 >
                   <option value="" disabled selected>
@@ -315,10 +321,12 @@ Or rejects immediately if any one of them fails. */
 
               {filterCategory !== "" && filterCategory === "rating" && (
                 <select
-                  name="genre"
+                  name="rating"
                   id=""
                   className="bg-slate-900 outline-none"
-                  onChange={(e) => setFilterValue(e.target.value)}
+                  onChange={(e) => {
+                    handleFilterChange("rating", e.target.value);
+                  }}
                   value={filterValue}
                 >
                   <option value="" disabled selected>
@@ -347,11 +355,13 @@ Or rejects immediately if any one of them fails. */
 
               {filterCategory !== "" && filterCategory === "year" && (
                 <select
-                  value={filterValue}
                   name="genre"
                   id=""
                   className="bg-slate-900 outline-none"
-                  onChange={(e) => setFilterValue(e.target.value)}
+                  onChange={(e) => {
+                    handleFilterChange("year", parseInt(e.target.value));
+                  }}
+                  value={filterValue}
                 >
                   <option value="" disabled selected>
                     Select Year
