@@ -31,48 +31,49 @@ const App = () => {
     setTypeOfSort("");
   }, [loadedCount, movies.length]);
 
-  const handleSubmit = () => {
+  const getMovieDetails = async (id, apiKey) => {
+  const response = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&i=${id}`);
+  if (!response.ok) throw new Error(`Failed to fetch movie with ID: ${id}`);
+  return await response.json();
+  };
+  
+  const handleSubmit = async () => {
+    try {
     setIsLoading(true);
     setFilterCategory("");
     setFilterValue("");
     setTypeOfSort("");
-    let ids = [];
-    fetch(searchUrl)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.Search) {
-          ids = data.Search.map((movie) => movie.imdbID);
-          // console.log(ids);
 
-          // Returns a single promise that resolves to
-          // an array of results (in the same order as the input promises)
-          // much faster than await inside a loop
-          return Promise.all(
-            ids.map((id) =>
-              fetch(`https://www.omdbapi.com/?apikey=${apiKey}&i=${id}`).then(
-                (res) => res.json()
-              )
-            )
-          );
-        } else {
-          setMovies([]);
-          // setIsLoading(false); // It runs after data is set
-          return [];
-        }
-      })
-      .then((dataArray) => {
-        const sorted = [...dataArray].sort(
-          (a, b) => parseInt(b.imdbID.slice(2)) - parseInt(a.imdbID.slice(2))
-        );
-        // console.log(sorted);
-        setMovies(sorted);
-        setMoviesCopy(sorted);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Fetch error:", error);
-        setIsLoading(false); // Handle error case
-      });
+    const res = await fetch(searchUrl);
+    const data = await res.json();
+
+    if (!data.Search) {
+      setMovies([]);
+      setMoviesCopy([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const ids = data.Search.map((movie) => movie.imdbID);
+
+    // Returns a single promise that resolves to
+    // an array of results (in the same order as the input promises)
+    // much faster than await inside a loop
+    const moviesData = await Promise.all(
+      ids.map((id) => getMovieDetails(id, apiKey))
+    );
+
+    const sorted = [...moviesData].sort(
+      (a, b) => parseInt(b.imdbID.slice(2)) - parseInt(a.imdbID.slice(2))
+    );
+
+    setMovies(sorted);
+    setMoviesCopy(sorted);
+    setIsLoading(false);
+  } catch (error) {
+    console.error("Fetch error:", error);
+    setIsLoading(false);
+  }
 
     /* Promise.all() — What it Does:
 Promise.all() is a JavaScript method that takes an array of promises, and:
