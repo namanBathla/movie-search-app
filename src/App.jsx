@@ -151,8 +151,8 @@ Or rejects immediately if any one of them fails. */
   }
   
   const handleYearFilter = (y) => {
-    const startYear = y;
-    const endYear = y + 9;
+    const startYear = parseInt(y);
+    const endYear = startYear + 9;
     const filteredMovies = moviesCopy.filter((m) => {
       const year = parseInt(m.Year?.slice(0, 4));
       console.log(m.Year, " - ", year);
