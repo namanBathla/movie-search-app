@@ -36,7 +36,7 @@ const App = () => {
   if (!response.ok) throw new Error(`Failed to fetch movie with ID: ${id}`);
   return await response.json();
   };
-  
+
   const handleSubmit = async () => {
     try {
     setIsLoading(true);
@@ -152,7 +152,7 @@ Or rejects immediately if any one of them fails. */
     const endYear = startYear + 9;
     const filteredMovies = moviesCopy.filter((m) => {
       const year = parseInt(m.Year?.slice(0, 4));
-      console.log(m.Year, " - ", year);
+      // console.log(m.Year, " - ", year);
       // console.log(year);
       return year >= startYear && year <= endYear;
     });
